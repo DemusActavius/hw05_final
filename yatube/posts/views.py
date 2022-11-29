@@ -127,8 +127,6 @@ def add_comment(request, post_id):
 def follow_index(request):
     follows = Follow.objects.filter(user=request.user)
     posts_all = []
-    if follows.count() == 0:
-        return render(request, 'posts/follow.html')
     for follow in follows:
         posts = Post.objects.filter(author=follow.author)
         posts_all += posts
