@@ -126,27 +126,28 @@ def add_comment(request, post_id):
 @login_required
 def follow_index(request):
     follows = Follow.objects.filter(user=request.user)
-    if follows.count() > 0:
-        for follow in follows:
-            posts = Post.objects.filter(author=follow.author)
-            page_obj = paginate_page(request, posts)
-        context = {
-            'page_obj': page_obj,
-            'follows': follows,
-        }
-        return render(request, 'posts/follow.html', context)
-    else:
+    posts_all = []
+    if follows.count() == 0:
         return render(request, 'posts/follow.html')
+    for follow in follows:
+        posts = Post.objects.filter(author=follow.author)
+        posts_all += posts
+    page_obj = paginate_page(request, posts_all)
+    context = {
+        'page_obj': page_obj,
+        'follows': follows,
+    }
+    print(context)
+    return render(request, 'posts/follow.html', context)
 
 
 @login_required
 def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
     if request.user != author:
-        if Follow.objects.filter(
-            user=request.user, author=author
-        ) == 0:
-            Follow.objects.create(user=request.user, author=author)
+        follow = Follow.objects.create(user=request.user, author=author)
+        follow.save()
+    print(Follow.objects.all())   
     return redirect('posts:follow_index')
 
 

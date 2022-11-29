@@ -95,3 +95,6 @@ class Follow(models.Model):
         verbose_name='Подписка на автора',
         related_name='following'
     )
+
+    def __str__(self):
+        return f'{self.user.username} follow {self.author.username}'
