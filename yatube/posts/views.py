@@ -135,7 +135,6 @@ def follow_index(request):
     page_obj = paginate_page(request, posts_all)
     context = {
         'page_obj': page_obj,
-        'follows': follows,
     }
     print(Follow.objects.all())
     return render(request, 'posts/follow.html', context)
