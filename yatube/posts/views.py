@@ -137,7 +137,7 @@ def follow_index(request):
         'page_obj': page_obj,
         'follows': follows,
     }
-    print(context)
+    print(Follow.objects.all())
     return render(request, 'posts/follow.html', context)
 
 
@@ -145,10 +145,13 @@ def follow_index(request):
 def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
     if request.user != author:
-        if Follow.objects.filter(user=request.user, author=author) == 0:
+        if Follow.objects.filter(
+            user=request.user, author=author
+        ).count() == 0:
             follow = Follow.objects.create(user=request.user, author=author)
             follow.save()
-    return redirect('posts:follow_index')
+            return redirect('posts:follow_index')
+    return redirect('posts:index')
 
 
 @login_required
