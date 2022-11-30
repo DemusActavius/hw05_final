@@ -73,8 +73,8 @@ def post_create(request):
     template = 'posts/post_create.html'
     is_edit = False
     form = PostForm(
-            request.POST or None,
-            files=request.FILES or None,
+        request.POST or None,
+        files=request.FILES or None,
     )
     if form.is_valid():
         post = form.save(commit=False)
