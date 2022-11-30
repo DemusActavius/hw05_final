@@ -72,16 +72,15 @@ def post_detail(request, post_id):
 def post_create(request):
     template = 'posts/post_create.html'
     is_edit = False
-    if request.method == 'POST':
-        form = PostForm(
-            request.POST,
+    form = PostForm(
+            request.POST or None,
             files=request.FILES or None,
-        )
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            form.save()
-            return redirect('posts:profile', post.author)
+    )
+    if form.is_valid():
+        post = form.save(commit=False)
+        post.author = request.user
+        form.save()
+        return redirect('posts:profile', post.author)
     form = PostForm()
     return render(request, template, {'form': form, 'is_edit': is_edit})
 
@@ -128,13 +127,12 @@ def follow_index(request):
     follows = Follow.objects.filter(user=request.user)
     posts_all = []
     for follow in follows:
-        posts = Post.objects.filter(author=follow.author)
+        posts = follow.author.posts.all()
         posts_all += posts
     page_obj = paginate_page(request, posts_all)
     context = {
         'page_obj': page_obj,
     }
-    print(Follow.objects.all())
     return render(request, 'posts/follow.html', context)
 
 
@@ -142,9 +140,8 @@ def follow_index(request):
 def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
     if request.user != author:
-        if Follow.objects.filter(
-            user=request.user, author=author
-        ).count() == 0:
+        f = Follow.objects.filter(user=request.user, author=author)
+        if not f.exists():
             follow = Follow.objects.create(user=request.user, author=author)
             follow.save()
             return redirect('posts:follow_index')
@@ -154,6 +151,6 @@ def profile_follow(request, username):
 @login_required
 def profile_unfollow(request, username):
     author = get_object_or_404(User, username=username)
-    follow = Follow.objects.get(user=request.user, author=author)
+    follow = get_object_or_404(Follow, user=request.user, author=author)
     follow.delete()
     return redirect('posts:index')
