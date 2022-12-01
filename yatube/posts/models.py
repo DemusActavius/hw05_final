@@ -100,7 +100,7 @@ class Follow(models.Model):
         return f'{self.user.username} follow {self.author.username}'
 
     constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'author'], name='unique_author_user_following'
-            )
-        ]
+        models.UniqueConstraint(
+            fields=['user', 'author'], name='unique_author_user_following'
+        )
+    ]
